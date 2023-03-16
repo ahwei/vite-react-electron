@@ -1,8 +1,8 @@
+import Modal from '@/components/update/Modal'
+import Progress from '@/components/update/Progress'
 import { ipcRenderer } from 'electron'
 import type { ProgressInfo } from 'electron-updater'
 import { useCallback, useEffect, useState } from 'react'
-import Modal from '@/components/update/Modal'
-import Progress from '@/components/update/Progress'
 import styles from './update.module.scss'
 
 const Update = () => {
@@ -37,41 +37,53 @@ const Update = () => {
     }
   }
 
-  const onUpdateCanAvailable = useCallback((_event: Electron.IpcRendererEvent, arg1: VersionInfo) => {
-    setVersionInfo(arg1)
-    setUpdateError(undefined)
-    // Can be update
-    if (arg1.update) {
-      setModalBtn(state => ({
-        ...state,
-        cancelText: 'Cancel',
-        okText: 'Update',
-        onOk: () => ipcRenderer.invoke('start-download'),
-      }))
-      setUpdateAvailable(true)
-    } else {
+  const onUpdateCanAvailable = useCallback(
+    (_event: Electron.IpcRendererEvent, arg1: VersionInfo) => {
+      setVersionInfo(arg1)
+      setUpdateError(undefined)
+      // Can be update
+      if (arg1.update) {
+        setModalBtn((state) => ({
+          ...state,
+          cancelText: 'Cancel',
+          okText: 'Update',
+          onOk: () => ipcRenderer.invoke('start-download'),
+        }))
+        setUpdateAvailable(true)
+      } else {
+        setUpdateAvailable(false)
+      }
+    },
+    []
+  )
+
+  const onUpdateError = useCallback(
+    (_event: Electron.IpcRendererEvent, arg1: ErrorType) => {
       setUpdateAvailable(false)
-    }
-  }, [])
+      setUpdateError(arg1)
+    },
+    []
+  )
 
-  const onUpdateError = useCallback((_event: Electron.IpcRendererEvent, arg1: ErrorType) => {
-    setUpdateAvailable(false)
-    setUpdateError(arg1)
-  }, [])
+  const onDownloadProgress = useCallback(
+    (_event: Electron.IpcRendererEvent, arg1: ProgressInfo) => {
+      setProgressInfo(arg1)
+    },
+    []
+  )
 
-  const onDownloadProgress = useCallback((_event: Electron.IpcRendererEvent, arg1: ProgressInfo) => {
-    setProgressInfo(arg1)
-  }, [])
-
-  const onUpdateDownloaded = useCallback((_event: Electron.IpcRendererEvent, ...args: any[]) => {
-    setProgressInfo({ percent: 100 })
-    setModalBtn(state => ({
-      ...state,
-      cancelText: 'Later',
-      okText: 'Install now',
-      onOk: () => ipcRenderer.invoke('quit-and-install'),
-    }))
-  }, [])
+  const onUpdateDownloaded = useCallback(
+    (_event: Electron.IpcRendererEvent, ...args: any[]) => {
+      setProgressInfo({ percent: 100 })
+      setModalBtn((state) => ({
+        ...state,
+        cancelText: 'Later',
+        okText: 'Install now',
+        onOk: () => ipcRenderer.invoke('quit-and-install'),
+      }))
+    },
+    []
+  )
 
   useEffect(() => {
     // Get version information and whether to update
@@ -96,31 +108,32 @@ const Update = () => {
         okText={modalBtn?.okText}
         onCancel={modalBtn?.onCancel}
         onOk={modalBtn?.onOk}
-        footer={updateAvailable ? /* hide footer */null : undefined}
+        footer={updateAvailable ? /* hide footer */ null : undefined}
       >
         <div className={styles.modalslot}>
-          {updateError
-            ? (
-              <div className='update-error'>
-                <p>Error downloading the latest version.</p>
-                <p>{updateError.message}</p>
+          {updateError ? (
+            <div className="update-error">
+              <p>Error downloading the latest version.</p>
+              <p>{updateError.message}</p>
+            </div>
+          ) : updateAvailable ? (
+            <div className="can-available">
+              <div>The last version is: v{versionInfo?.newVersion}</div>
+              <div className="new-version-target">
+                v{versionInfo?.version} -&gt; v{versionInfo?.newVersion}
               </div>
-            ) : updateAvailable
-              ? (
-                <div className='can-available'>
-                  <div>The last version is: v{versionInfo?.newVersion}</div>
-                  <div className='new-version-target'>v{versionInfo?.version} -&gt; v{versionInfo?.newVersion}</div>
-                  <div className='update-progress'>
-                    <div className='progress-title'>Update progress:</div>
-                    <div className='progress-bar'>
-                      <Progress percent={progressInfo?.percent} ></Progress>
-                    </div>
-                  </div>
+              <div className="update-progress">
+                <div className="progress-title">Update progress:</div>
+                <div className="progress-bar">
+                  <Progress percent={progressInfo?.percent}></Progress>
                 </div>
-              )
-              : (
-                <div className='can-not-available'>{JSON.stringify(versionInfo ?? {}, null, 2)}</div>
-              )}
+              </div>
+            </div>
+          ) : (
+            <div className="can-not-available">
+              {JSON.stringify(versionInfo ?? {}, null, 2)}
+            </div>
+          )}
         </div>
       </Modal>
       <button disabled={checking} onClick={checkUpdate}>
