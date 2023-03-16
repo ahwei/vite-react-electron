@@ -46,9 +46,15 @@ export default defineConfig(({ command }) => {
         nodeIntegration: true,
       }),
     ],
-    server: {
-      port: 1234,
-    },
+    server: !!process.env.VSCODE_DEBUG
+      ? (() => {
+          const url = new URL(pkg.debug.env.VITE_DEV_SERVER_URL)
+          return {
+            host: url.hostname,
+            port: +url.port,
+          }
+        })()
+      : { port: 1234 }, // 修改 port 為 1234
     clearScreen: false,
   }
 })
