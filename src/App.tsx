@@ -3,11 +3,6 @@ import { useState } from 'react'
 import './App.scss'
 import nodeLogo from './assets/node.svg'
 
-console.log(
-  '[App.tsx]',
-  `Hello world from Electron ${process.versions.electron}!`
-)
-
 function App() {
   const [count, setCount] = useState(0)
   return (
