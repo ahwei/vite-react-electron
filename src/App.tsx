@@ -1,4 +1,3 @@
-import Update from '@/components/update'
 import { useState } from 'react'
 import './App.scss'
 import nodeLogo from './assets/node.svg'
@@ -36,8 +35,6 @@ function App() {
         Place static files into the<code>/public</code> folder{' '}
         <img style={{ width: '5em' }} src={nodeLogo} alt="Node logo" />
       </div>
-
-      <Update />
     </div>
   )
 }
