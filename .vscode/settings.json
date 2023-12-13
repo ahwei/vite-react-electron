@@ -9,9 +9,9 @@
   ],
   "editor.acceptSuggestionOnEnter": "on",
   "editor.codeActionsOnSave": {
-    "source.fixAll.eslint": true,
-    "source.fixAll": true,
-    "source.sortImports": true,
-    "source.fixAll.markdownlint": true
+    "source.fixAll.eslint": "explicit",
+    "source.fixAll": "explicit",
+    "source.sortImports": "explicit",
+    "source.fixAll.markdownlint": "explicit"
   }
 }
